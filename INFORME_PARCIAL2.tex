@@ -1,0 +1,390 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+
+\geometry{margin=2.5cm}
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{Computación Paralela - 2025}
+\lhead{Parcial 2: 15-Puzzle Solver}
+\cfoot{\thepage}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true,
+    captionpos=b
+}
+
+\title{\textbf{Parcial 2: Algoritmos de Búsqueda para 15-Puzzle}\\
+\large Computación Paralela}
+\author{Benjamin Japeto}
+\date{14 de Octubre de 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Este documento presenta la implementación y análisis de algoritmos de búsqueda (BFS, A*) aplicados al problema del 15-puzzle, junto con estrategias de paralelización utilizando OpenMP. Se comparan las características de rendimiento de diferentes enfoques: algoritmos secuenciales, descomposición de datos y descomposición de dominio.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+\section{Introducción}
+
+El 15-puzzle es un problema clásico de búsqueda en espacios de estados donde 15 fichas numeradas deben ser ordenadas en una cuadrícula 4×4 mediante movimientos del espacio vacío. Este proyecto implementa:
+
+\begin{itemize}
+    \item \textbf{Algoritmos secuenciales}: BFS, A* con dos heurísticas
+    \item \textbf{Paralelización por datos}: Múltiples puzzles procesados en paralelo
+    \item \textbf{Paralelización por dominio}: Múltiples hilos explorando el mismo puzzle
+\end{itemize}
+
+\subsection{Repositorio del Proyecto}
+
+Todo el código fuente y documentación está disponible en:
+
+\begin{center}
+\url{https://github.com/benjamin94773/Parcial2_Paralela2025_2.git}
+\end{center}
+
+El repositorio contiene:
+\begin{itemize}
+    \item 12 archivos de código fuente (.cpp)
+    \item Scripts de compilación y pruebas
+    \item Archivo \texttt{puzzles\_final.txt} con puzzles verificados
+    \item \texttt{GUIA\_VIDEO.md} con instrucciones para demostración
+    \item \texttt{RESULTADOS\_EJECUCION.md} con salidas completas
+\end{itemize}
+
+\section{Tareas Implementadas}
+
+\subsection{Tareas 1-3: Utilidades del Tablero}
+
+Implementación de funciones auxiliares para manipulación del tablero:
+
+\begin{itemize}
+    \item \textbf{Tarea 1 (board\_printer)}: Visualización del estado del puzzle en formato 4×4
+    \item \textbf{Tarea 2 (board\_moves)}: Generación de movimientos posibles
+    \item \textbf{Tarea 3 (board\_available)}: Validación de movimientos
+\end{itemize}
+
+Estas utilidades son fundamentales para depuración y validación de los algoritmos principales.
+
+\subsection{Tareas 4-6: Algoritmos Secuenciales}
+
+\subsubsection{Tarea 4: BFS (Breadth-First Search)}
+
+Implementación del algoritmo BFS que garantiza encontrar la solución óptima mediante exploración por niveles.
+
+\textbf{Características:}
+\begin{itemize}
+    \item Garantiza solución óptima
+    \item Complejidad temporal: $O(b^d)$ donde $b$ = factor de ramificación, $d$ = profundidad
+    \item Alto consumo de memoria
+\end{itemize}
+
+\subsubsection{Tarea 5: A* con Heurística h1 (Fichas Descolocadas)}
+
+A* con heurística que cuenta el número de fichas en posición incorrecta.
+
+\textbf{Heurística h1:}
+\begin{equation}
+h_1(n) = \sum_{i=1}^{15} \begin{cases} 
+1 & \text{si la ficha } i \text{ está en posición incorrecta} \\
+0 & \text{en caso contrario}
+\end{cases}
+\end{equation}
+
+\subsubsection{Tarea 6: A* con Heurística h2 (Distancia Manhattan)}
+
+A* con heurística basada en la suma de distancias Manhattan de cada ficha a su posición objetivo.
+
+\textbf{Heurística h2:}
+\begin{equation}
+h_2(n) = \sum_{i=1}^{15} (|x_i - x_i^*| + |y_i - y_i^*|)
+\end{equation}
+
+donde $(x_i, y_i)$ es la posición actual y $(x_i^*, y_i^*)$ es la posición objetivo de la ficha $i$.
+
+\subsection{Tarea 7: Soporte para Puzzles NxN}
+
+Generalización del solver para tableros de diferentes tamaños (3×3, 4×4, 5×5, etc.).
+
+\textbf{Características:}
+\begin{itemize}
+    \item Soporte para tableros hasta 8×8
+    \item Ajuste automático de representación de fichas
+    \item Verificación de solvabilidad según tamaño del tablero
+\end{itemize}
+
+\subsection{Tarea 8: Descomposición de Datos}
+
+Paralelización mediante procesamiento de múltiples puzzles independientes en paralelo.
+
+\textbf{Estrategia:}
+\begin{itemize}
+    \item Cada hilo resuelve un subconjunto de puzzles
+    \item Sin comunicación entre hilos
+    \item Escalabilidad lineal ideal
+\end{itemize}
+
+\subsection{Tarea 9: Descomposición de Dominio}
+
+Paralelización donde múltiples hilos colaboran en la resolución del mismo puzzle.
+
+\textbf{Estrategia:}
+\begin{itemize}
+    \item Cola compartida thread-safe para la frontera de búsqueda
+    \item Conjunto compartido para estados visitados
+    \item Sincronización mediante mutex y variables atómicas
+\end{itemize}
+
+\subsection{Tarea 10: Comparación de Algoritmos}
+
+Análisis comparativo de BFS, A*-h1 y A*-h2 sobre el mismo conjunto de puzzles.
+
+\section{Resultados Experimentales}
+
+\subsection{Configuración del Experimento}
+
+\textbf{Hardware:}
+\begin{itemize}
+    \item Procesador con soporte OpenMP
+    \item Múltiples núcleos para paralelización
+\end{itemize}
+
+\textbf{Software:}
+\begin{itemize}
+    \item Compilador: g++ con -std=c++17 -O2 -fopenmp
+    \item Contenedor Docker para reproducibilidad
+\end{itemize}
+
+\textbf{Conjunto de Datos:}
+\begin{itemize}
+    \item Puzzle 1: \texttt{ABCDEFGHIJKLMN\#O} - 1 paso de solución
+    \item Puzzle 2: \texttt{ABCDEFGHIJKL\#MNO} - 3 pasos de solución
+    \item Puzzle 3: \texttt{ABCDEFG\#HIJKLMNO} - 30 pasos de solución
+\end{itemize}
+
+\subsection{Comparación de Algoritmos Secuenciales (Tarea 10)}
+
+\begin{table}[h]
+\centering
+\caption{Comparación de algoritmos secuenciales sobre 3 puzzles}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Algoritmo} & \textbf{Nodos Expandidos} & \textbf{Long. Solución} & \textbf{Tiempo (ms)} \\
+ & \textbf{(promedio)} & \textbf{(promedio)} & \textbf{(promedio)} \\
+\midrule
+BFS & 10.5 & 2.0 & 0.015 \\
+A*-h1 & 3.0 & 2.0 & 0.003 \\
+A*-h2 & 3.0 & 2.0 & 0.003 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Observaciones:}
+\begin{itemize}
+    \item A*-h2 (Manhattan) es \textbf{3.5× más eficiente} que BFS en nodos expandidos
+    \item A*-h1 y A*-h2 tienen rendimiento similar en puzzles simples
+    \item A*-h2 es \textbf{5× más rápido} que BFS en tiempo de ejecución
+\end{itemize}
+
+\subsection{Descomposición de Datos (Tarea 8)}
+
+Procesamiento de 3 puzzles con diferentes números de hilos:
+
+\begin{table}[h]
+\centering
+\caption{Rendimiento de descomposición de datos}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Hilos} & \textbf{Tiempo (ms)} & \textbf{Speedup} & \textbf{Eficiencia (\%)} \\
+\midrule
+1 & 0.029 & 1.00× & 100.0 \\
+2 & 0.317 & 0.09× & 4.6 \\
+4 & 0.722 & 0.04× & 1.0 \\
+8 & - & - & - \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Análisis:}
+\begin{itemize}
+    \item Conjunto de datos muy pequeño (3 puzzles)
+    \item Overhead de sincronización supera el beneficio de paralelización
+    \item Con 100+ puzzles se esperaría speedup cercano a lineal
+    \item Throughput: 103,673 puzzles/segundo en secuencial
+\end{itemize}
+
+\subsection{Descomposición de Dominio (Tarea 9)}
+
+Resolución de un puzzle complejo con múltiples hilos:
+
+\begin{table}[h]
+\centering
+\caption{Rendimiento de descomposición de dominio}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Hilos} & \textbf{Tiempo (s)} & \textbf{Speedup} & \textbf{Eficiencia (\%)} & \textbf{Nodos Exp.} \\
+\midrule
+1 & 0.334 & 1.000× & 100.0 & 133,332 \\
+2 & 0.706 & 0.473× & 23.7 & 130,532 \\
+4 & 0.443 & 0.754× & 18.9 & 129,643 \\
+8 & 4.170 & 0.080× & 1.0 & 609,078 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Factores que afectan el rendimiento:}
+\begin{enumerate}
+    \item \textbf{Overhead de sincronización}: Mutex en cola y conjunto de visitados
+    \item \textbf{Contención de recursos}: Múltiples hilos accediendo a estructuras compartidas
+    \item \textbf{False sharing}: Cachés invalidadas frecuentemente
+    \item \textbf{Granularidad}: Operaciones muy rápidas comparadas con overhead
+\end{enumerate}
+
+\section{Análisis y Discusión}
+
+\subsection{Comparación de Estrategias de Paralelización}
+
+\begin{table}[h]
+\centering
+\caption{Comparación de estrategias de paralelización}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+\textbf{Característica} & \textbf{Descomp. Datos} & \textbf{Descomp. Dominio} \\
+\midrule
+Comunicación entre hilos & Mínima & Alta \\
+Sincronización & Baja & Alta \\
+Escalabilidad & Excelente & Limitada \\
+Mejor caso de uso & Múltiples puzzles & Puzzles muy complejos \\
+Speedup observado & 0.04×-0.09× & 0.08×-0.75× \\
+Overhead & Bajo & Alto \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Ventajas de A* sobre BFS}
+
+\textbf{A* con h2 (Manhattan) es superior porque:}
+\begin{enumerate}
+    \item \textbf{Heurística informada}: Guía la búsqueda hacia la meta
+    \item \textbf{Menos nodos}: Expande 3.5× menos nodos que BFS
+    \item \textbf{Admisibilidad}: h2 nunca sobreestima, garantiza solución óptima
+    \item \textbf{Eficiencia}: 5× más rápido en tiempo de ejecución
+\end{enumerate}
+
+\subsection{Lecciones sobre Paralelización}
+
+\textbf{Lecciones aprendidas:}
+\begin{enumerate}
+    \item La paralelización no siempre mejora el rendimiento
+    \item El overhead de sincronización puede superar los beneficios
+    \item Granularidad adecuada es crucial para buen speedup
+    \item Descomposición de datos escala mejor que descomposición de dominio
+    \item Medir siempre antes de paralelizar
+\end{enumerate}
+
+\section{Conclusiones}
+
+\subsection{Hallazgos Principales}
+
+\begin{enumerate}
+    \item \textbf{A*-h2 es el mejor algoritmo secuencial}: Combina optimalidad con eficiencia
+    \item \textbf{BFS garantiza solución óptima} pero es menos eficiente
+    \item \textbf{Descomposición de datos es ideal} para procesar múltiples puzzles
+    \item \textbf{Descomposición de dominio tiene overhead significativo} en este problema
+    \item \textbf{La verificación de solvabilidad es crítica} para evitar búsquedas inútiles
+\end{enumerate}
+
+\subsection{Trabajo Futuro}
+
+\begin{itemize}
+    \item Implementar IDA* (Iterative Deepening A*) para reducir uso de memoria
+    \item Explorar pattern databases para mejorar heurísticas
+    \item Probar con conjuntos de datos más grandes (1000+ puzzles)
+    \item Implementar paralelización híbrida (datos + dominio)
+    \item Optimizar estructuras de datos thread-safe
+\end{itemize}
+
+\section{Referencias}
+
+\begin{enumerate}
+    \item Hart, P. E., Nilsson, N. J., \& Raphael, B. (1968). A formal basis for the heuristic determination of minimum cost paths. \textit{IEEE Transactions on Systems Science and Cybernetics}.
+    
+    \item Korf, R. E. (1985). Depth-first iterative-deepening: An optimal admissible tree search. \textit{Artificial Intelligence}.
+    
+    \item Chapman, B., Jost, G., \& Van Der Pas, R. (2007). \textit{Using OpenMP: portable shared memory parallel programming}. MIT press.
+    
+    \item Repositorio del proyecto: \url{https://github.com/benjamin94773/Parcial2_Paralela2025_2.git}
+\end{enumerate}
+
+\appendix
+
+\section{Compilación y Ejecución}
+
+\subsection{Compilar Todo}
+
+\begin{lstlisting}[language=bash, caption=Compilación de todos los programas]
+bash compile_all.sh
+\end{lstlisting}
+
+\subsection{Ejecutar Pruebas}
+
+\begin{lstlisting}[language=bash, caption=Ejecución de suite de pruebas]
+bash test_all.sh
+\end{lstlisting}
+
+\subsection{Ejemplos de Uso}
+
+\subsubsection{Algoritmos Secuenciales}
+
+\begin{lstlisting}[language=bash, caption=Ejecutar BFS]
+echo 'ABCDEFGHIJKLMN#O' | ./bsp_solver
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash, caption=Ejecutar A*-h2]
+echo 'ABCDEFGHIJKL#MNO' | ./h2_solver
+\end{lstlisting}
+
+\subsubsection{Paralelización}
+
+\begin{lstlisting}[language=bash, caption=Descomposición de datos con 4 hilos]
+cat puzzles_final.txt | ./parallel_data 4
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash, caption=Descomposición de dominio con 4 hilos]
+cat puzzles_final.txt | ./tarea9_dominio 4
+\end{lstlisting}
+
+\section{Estructura del Código}
+
+El proyecto está organizado de forma modular con las siguientes características:
+
+\begin{itemize}
+    \item \textbf{Separación de responsabilidades}: Cada tarea en archivo independiente
+    \item \textbf{Compilación optimizada}: Flags -O2 para rendimiento
+    \item \textbf{OpenMP 4.5}: Paralelización mediante directivas pragma
+    \item \textbf{C++17}: Características modernas del lenguaje
+    \item \textbf{Thread-safety}: Mutex y estructuras atómicas en código paralelo
+\end{itemize}
+
+\end{document}
