@@ -261,7 +261,7 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ## 👤 Autor
 
-**Benjamin Japeto**  
+**Benjamin Ortiz Morales**  
 Computación Paralela - 2025  
 Repositorio: https://github.com/benjamin94773/Parcial2_Paralela2025_2.git
 
