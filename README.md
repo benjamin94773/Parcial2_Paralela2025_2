@@ -105,8 +105,7 @@ cat puzzles_final.txt | ./tarea10_comparacion
 
 - **Compilador:** GCC con soporte C++17
 - **Paralelización:** OpenMP 4.5+
-- **Sistema:** Linux/Unix (o Docker)
-- **Memoria:** Mínimo 2GB RAM
+
 
 ---
 
