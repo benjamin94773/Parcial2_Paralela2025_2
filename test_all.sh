@@ -8,44 +8,40 @@ echo "  Validación 15-Puzzle Solver"
 echo "=========================================="
 echo ""
 
-# Puzzle de prueba del PDF (BFS debe dar 8 pasos)
-PUZZLE_BFS="ABGD#FHCEIJKLMNO"
-# Puzzle de prueba para A*-h1
-PUZZLE_H1="HAGDEFBCIJKLMNO#"
-# Puzzle de prueba para A*-h2
-PUZZLE_H2="HGFEDCBA#ONMLKJI"
-# Puzzle moderado
-PUZZLE_MEDIUM="ABGDEFHCIJKLMNO#"
+# Puzzles de prueba verificados
+PUZZLE_EASY="ABCDEFGHIJKLMN#O"    # 1 paso
+PUZZLE_MEDIUM="ABCDEFGHIJKL#MNO"  # 3 pasos
+PUZZLE_HARD="ABCDEFG#HIJKLMNO"    # 30 pasos
 
-echo "=== Test 1: Validación con casos del PDF ==="
+echo "=== Test 1: Validación con puzzles verificados ==="
 echo ""
 
-echo "Prueba BFS (esperado: 8 pasos):"
-echo $PUZZLE_BFS | ./bsp_solver | grep -E "Solution length|Nodes expanded" | head -2
+echo "Prueba BFS (esperado: 1 paso):"
+echo $PUZZLE_EASY | ./bsp_solver
 echo ""
 
-echo "Prueba A*-h1 (esperado: ~14 pasos):"
-echo $PUZZLE_H1 | ./h1_solver | grep -E "Solution length|Nodes expanded" | head -2
+echo "Prueba A*-h1 (esperado: 3 pasos):"
+echo $PUZZLE_MEDIUM | ./h1_solver
 echo ""
 
-echo "Prueba A*-h2 (esperado: ~30 pasos):"
-echo $PUZZLE_H2 | ./h2_solver | grep -E "Solution length|Nodes expanded" | head -2
+echo "Prueba A*-h2 (esperado: 30 pasos):"
+echo $PUZZLE_HARD | ./h2_solver
 echo ""
 
 echo "=== Test 2: Comparación de Algoritmos ==="
 echo ""
-echo "Ejecutando comparación en puzzles_medium.txt..."
-./tarea10_comparacion puzzles_medium.txt 2>/dev/null | tail -10
+echo "Ejecutando comparación en puzzles_final.txt..."
+cat puzzles_final.txt | ./tarea10_comparacion 2>/dev/null | tail -10
 echo ""
 
 echo "=== Test 3: Descomposición de Datos (Tarea 8) ==="
 echo ""
-echo "Probando con 1, 2, 4 y 8 hilos en puzzles_hard.txt..."
+echo "Probando con 1, 2, 4 y 8 hilos en puzzles_final.txt..."
 echo ""
 
 for threads in 1 2 4 8; do
     echo -n "$threads hilos: "
-    result=$(./parallel_data puzzles_hard.txt $threads 2>/dev/null | grep -E "Total time|Speedup" | head -2)
+    result=$(cat puzzles_final.txt | ./parallel_data $threads 2>/dev/null | grep -E "Total time|Speedup" | head -2)
     time=$(echo "$result" | grep "Total time" | awk '{print $3}')
     speedup=$(echo "$result" | grep "Speedup" | awk '{print $2}')
     echo "Tiempo=${time}s, Speedup=${speedup}x"

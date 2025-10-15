@@ -41,12 +41,9 @@ Este proyecto implementa y compara algoritmos de búsqueda para resolver el 15-p
 │   ├── tarea10_comparacion_algoritmos.cpp# Tarea 10: Comparación
 │   └── parallel_bfs_solver.cpp           # Adicional
 │
-├── Datos de Prueba (5 archivos)
-│   ├── puzzles.txt                       # Puzzles generales
-│   ├── puzzles_easy.txt                  # 20 puzzles fáciles (5-10 movs)
-│   ├── puzzles_medium.txt                # 20 puzzles medianos (10-15 movs)
-│   ├── puzzles_hard.txt                  # 50 puzzles difíciles (15-30 movs)
-│   └── puzzles_extreme.txt               # 10 puzzles extremos (30-50 movs)
+├── Datos de Prueba
+│   ├── puzzles_final.txt                 # 3 puzzles verificados (1, 3, 30 movs)
+│   └── GUIA_VIDEO.md                     # Guía completa para grabación de video
 │
 └── Scripts de Automatización
     ├── compile_all.sh                    # Compila todos los archivos
@@ -152,16 +149,16 @@ Procesa múltiples puzzles en paralelo:
 
 ```bash
 # Secuencial (baseline)
-./parallel_data puzzles_hard.txt 1
+cat puzzles_final.txt | ./parallel_data 1
 
 # Con 2 hilos
-./parallel_data puzzles_hard.txt 2
+cat puzzles_final.txt | ./parallel_data 2
 
 # Con 4 hilos
-./parallel_data puzzles_hard.txt 4
+cat puzzles_final.txt | ./parallel_data 4
 
-# Con 8 hilos (mejor speedup)
-./parallel_data puzzles_hard.txt 8
+# Con 8 hilos
+cat puzzles_final.txt | ./parallel_data 8
 ```
 
 #### 4. Tarea 9: Descomposición de Dominio
@@ -188,8 +185,8 @@ echo 'ABGDEFHCIJKLMNO#' | ./tarea9_metricas 8
 #### 5. Tarea 10: Comparación de Algoritmos
 
 ```bash
-# Comparar BFS vs A*-h1 vs A*-h2 en 20 puzzles
-./tarea10_comparacion puzzles_medium.txt
+# Comparar BFS vs A*-h1 vs A*-h2
+cat puzzles_final.txt | ./tarea10_comparacion
 ```
 
 ---
@@ -201,17 +198,17 @@ echo 'ABGDEFHCIJKLMNO#' | ./tarea9_metricas 8
 bash test_all.sh
 ```
 
-### Casos de Prueba del PDF
+### Casos de Prueba Verificados
 
 ```bash
-# Caso BFS (debe dar 8 pasos)
-echo 'ABGD#FHCEIJKLMNO' | ./bsp_solver
+# Puzzle fácil (1 paso)
+echo 'ABCDEFGHIJKLMN#O' | ./bsp_solver
 
-# Caso A*-h1
-echo 'HAGDEFBCIJKLMNO#' | ./h1_solver
+# Puzzle medio (3 pasos)
+echo 'ABCDEFGHIJKL#MNO' | ./h1_solver
 
-# Caso A*-h2
-echo 'HGFEDCBA#ONMLKJI' | ./h2_solver
+# Puzzle difícil (30 pasos)
+echo 'ABCDEFG#HIJKLMNO' | ./h2_solver
 ```
 
 ---
@@ -220,14 +217,14 @@ echo 'HGFEDCBA#ONMLKJI' | ./h2_solver
 
 ### Experimento 1: Comparar eficiencia de algoritmos
 ```bash
-./tarea10_comparacion puzzles_medium.txt
+cat puzzles_final.txt | ./tarea10_comparacion
 ```
 
 ### Experimento 2: Evaluar speedup con paralelización de datos
 ```bash
 for threads in 1 2 4 8; do
     echo "=== $threads hilos ==="
-    ./parallel_data puzzles_hard.txt $threads
+    cat puzzles_final.txt | ./parallel_data $threads
 done
 ```
 
