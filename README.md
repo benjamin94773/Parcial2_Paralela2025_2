@@ -34,11 +34,6 @@ Implementación completa de 10 tareas sobre algoritmos de búsqueda para el prob
 - ⚠️ **Descomposición de dominio** tiene overhead significativo (speedup < 1.0)
 - 📊 **31 archivos** en el repositorio (14 .cpp, 5 .md, 1 .tex, 3 .sh, 6 .txt)
 
-**Documentación completa:**
-- [`GUIA_VIDEO.md`](GUIA_VIDEO.md) - Script para video de demostración (15-20 min)
-- [`RESULTADOS_EJECUCION.md`](RESULTADOS_EJECUCION.md) - Salidas de todas las tareas
-- [`INSTRUCCIONES_FINALES.md`](INSTRUCCIONES_FINALES.md) - Pasos para entregar el parcial
-- [`INFORME_PARCIAL2.tex`](INFORME_PARCIAL2.tex) - Informe académico completo
 
 ---
 
@@ -78,8 +73,7 @@ Este proyecto implementa y compara algoritmos de búsqueda para resolver el 15-p
 │   └── parallel_bfs_solver.cpp           # Adicional
 │
 ├── Datos de Prueba
-│   ├── puzzles_final.txt                 # 3 puzzles verificados (1, 3, 30 movs)
-│   └── GUIA_VIDEO.md                     # Guía completa para grabación de video
+│   └── puzzles_final.txt                 # 3 puzzles verificados (1, 3, 30 movs)
 │
 └── Scripts de Automatización
     ├── compile_all.sh                    # Compila todos los archivos
@@ -88,7 +82,7 @@ Este proyecto implementa y compara algoritmos de búsqueda para resolver el 15-p
 
 ---
 
-## � Inicio Rápido
+## Inicio Rápido
 
 ### Clonar el repositorio
 ```bash
@@ -120,7 +114,7 @@ cat puzzles_final.txt | ./tarea10_comparacion
 
 ---
 
-## �🔧 Requisitos
+## Requisitos
 
 - **Compilador:** GCC con soporte C++17
 - **Paralelización:** OpenMP 4.5+
@@ -129,7 +123,7 @@ cat puzzles_final.txt | ./tarea10_comparacion
 
 ---
 
-## 📦 Compilación
+## Compilación
 
 ### Compilar todo automáticamente:
 ```bash
@@ -175,7 +169,7 @@ g++ -std=c++17 -O2 tarea10_comparacion_algoritmos.cpp -o tarea10_comparacion
 
 ---
 
-## 🚀 Ejecución
+## Ejecución
 
 ### Formato de Entrada
 Los puzzles se representan como cadenas:
@@ -259,7 +253,7 @@ cat puzzles_final.txt | ./tarea10_comparacion
 
 ---
 
-## 🧪 Pruebas de Validación
+## Pruebas de Validación
 
 ### Ejecutar todas las pruebas:
 ```bash
@@ -281,7 +275,7 @@ echo 'ABCDEFG#HIJKLMNO' | ./h2_solver
 
 ---
 
-## 📊 Experimentos Sugeridos
+## Experimentos Sugeridos
 
 ### Experimento 1: Comparar eficiencia de algoritmos
 ```bash
@@ -322,11 +316,11 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ### Comparación de Algoritmos Secuenciales
 
-| Algoritmo | Nodos Expandidos | Longitud Solución | Tiempo (ms) | Eficiencia |
-|-----------|------------------|-------------------|-------------|------------|
-| BFS       | 10.5             | 2.0               | 0.015       | ⭐⭐⭐ |
-| A*-h1     | 3.0              | 2.0               | 0.003       | ⭐⭐⭐⭐⭐ |
-| A*-h2     | 3.0              | 2.0               | 0.003       | ⭐⭐⭐⭐⭐ |
+| Algoritmo | Nodos Expandidos | Longitud Solución | Tiempo (ms) |
+|-----------|------------------|-------------------|-------------|
+| BFS       | 10.5             | 2.0               | 0.015       | 
+| A*-h1     | 3.0              | 2.0               | 0.003       | 
+| A*-h2     | 3.0              | 2.0               | 0.003       | 
 
 **Conclusión:** A*-h2 es **5× más rápido** que BFS y expande **3.5× menos nodos**.
 
@@ -361,15 +355,6 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ---
 
-## 📖 Documentación Adicional
-
-- **[GUIA_VIDEO.md](GUIA_VIDEO.md)** - Script completo para grabar video de demostración (15-20 min)
-- **[RESULTADOS_EJECUCION.md](RESULTADOS_EJECUCION.md)** - Salidas completas de todas las tareas
-- **[INSTRUCCIONES_FINALES.md](INSTRUCCIONES_FINALES.md)** - Pasos para completar la entrega
-- **[RESUMEN_EJECUTIVO.md](RESUMEN_EJECUTIVO.md)** - Overview del proyecto completo
-- **[INFORME_PARCIAL2.tex](INFORME_PARCIAL2.tex)** - Informe académico en LaTeX
-
----
 
 ## 🎓 Lecciones Aprendidas
 
@@ -383,24 +368,17 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ## 👤 Autor
 
-**Benjamin Japeto**  
+**Benjamin Ortiz**  
 Computación Paralela - 2025  
 Repositorio: https://github.com/benjamin94773/Parcial2_Paralela2025_2.git
 
----
 
-## 📝 Licencia y Uso Académico
-
-Este proyecto es parte del Parcial 2 del curso de Computación Paralela.  
-Todos los algoritmos están implementados desde cero para fines educativos.
 
 ---
 
 ## 🔗 Enlaces Importantes
 
 - **Repositorio GitHub:** https://github.com/benjamin94773/Parcial2_Paralela2025_2.git
-- **Compilar informe PDF:** Subir `INFORME_PARCIAL2.tex` a [Overleaf](https://www.overleaf.com)
-- **Grabar video:** Seguir instrucciones en `GUIA_VIDEO.md`
 
 ---
 
