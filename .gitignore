@@ -1,0 +1,68 @@
+# Solo archivos esenciales para el repositorio Git
+# NO incluir documentación extra ni informes
+
+# Ejecutables compilados
+*.exe
+*.out
+*.o
+board_printer
+board_moves
+board_available
+bsp_solver
+h1_solver
+h2_solver
+nxn_solver
+parallel_data
+tarea9_dominio
+tarea9_metricas
+tarea10_comparacion
+parallel_bfs_solver
+
+# Archivos temporales y de salida
+out.txt
+results.txt
+*.tmp
+*.swp
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+__MACOSX/
+
+# IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Documentación extra (no necesaria en el repo)
+*.md
+!README.md
+GUIA_GIT.md
+ARCHIVOS_NECESARIOS.md
+ESTADO_FINAL.md
+RESUMEN_ESTADO_GIT.md
+COMANDOS_GIT.txt
+
+# Archivos .txt temporales (pero PERMITIR puzzles_*.txt)
+out.txt
+results.txt
+puzzles_8x8.txt
+solvable_50.txt
+
+# Archivos LaTeX (el informe final no va al repo)
+*.aux
+*.log
+*.toc
+*.pdf
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.tex
+
+# Scripts de PowerShell (solo para uso local)
+*.ps1
+
+# Archivos de prueba adicionales
+puzzles_8x8.txt
+solvable_50.txt
