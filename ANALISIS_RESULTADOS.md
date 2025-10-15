@@ -1,4 +1,4 @@
-# 📊 Análisis Detallado de Resultados - Tarea 10
+# Análisis Detallado de Resultados - Tarea 10
 
 ## Comparación Exhaustiva de Algoritmos de Búsqueda
 
@@ -13,7 +13,7 @@
 
 ---
 
-## 📈 Resultados Agregados
+## Resultados Agregados
 
 ### Tabla Comparativa General
 
@@ -34,7 +34,7 @@
 
 ---
 
-## 🎯 Análisis por Complejidad de Puzzle
+## Análisis por Complejidad de Puzzle
 
 ### Categorización por Longitud de Solución
 
@@ -102,18 +102,18 @@
 
 | Puzzle | Algoritmo | Nodos | Tiempo (ms) | Resultado |
 |--------|-----------|-------|-------------|-----------|
-| `BGFCAJLDENKHI#MO` | BFS | 500,001 | 1,417 | ❌ No resuelto |
-|                    | A*-h1 | 860 | 228.5 | ✅ Resuelto |
-|                    | A*-h2 | **109** | **0.246** | ✅ Resuelto |
-| `AFCGIEBD#NKHJMOL` | BFS | 500,001 | 1,386 | ❌ No resuelto |
-|                    | A*-h1 | 6,099 | 13.3 | ✅ Resuelto |
-|                    | A*-h2 | **560** | **1.079** | ✅ Resuelto |
+| `BGFCAJLDENKHI#MO` | BFS | 500,001 | 1,417 |  No resuelto |
+|                    | A*-h1 | 860 | 228.5 |  Resuelto |
+|                    | A*-h2 | **109** | **0.246** |  Resuelto |
+| `AFCGIEBD#NKHJMOL` | BFS | 500,001 | 1,386 |  No resuelto |
+|                    | A*-h1 | 6,099 | 13.3 |  Resuelto |
+|                    | A*-h2 | **560** | **1.079** |  Resuelto |
 
 **Conclusión crítica:** Solo A* puede resolver puzzles muy complejos de manera práctica.
 
 ---
 
-## 🔍 Análisis Estadístico Detallado
+## Análisis Estadístico Detallado
 
 ### Distribución de Nodos Expandidos
 
@@ -133,7 +133,7 @@
 - **Mínimo:** 3 nodos (puzzles triviales)
 - **Máximo:** 560 nodos (`AFCGIEBD#NKHJMOL`)
 - **Mediana:** 9 nodos
-- **Desviación estándar:** Baja variabilidad ✅
+- **Desviación estándar:** Baja variabilidad 
 
 ---
 
@@ -151,14 +151,14 @@
 
 #### A*-h2
 - **Mínimo:** 0.002 ms
-- **Máximo:** 1.079 ms ✅
-- **Percentil 90:** 0.119 ms ✅
+- **Máximo:** 1.079 ms 
+- **Percentil 90:** 0.119 ms 
 
 **Conclusión:** A*-h2 tiene el **mejor caso peor** (max tiempo más bajo).
 
 ---
 
-## 🏆 Casos de Estudio Destacados
+## Casos de Estudio Destacados
 
 ### Caso 1: Máxima Ventaja de A*-h2
 
@@ -168,7 +168,7 @@
 |-----------|------------------|-------------|---------------|
 | BFS       | 277,922          | 799.3       | -             |
 | A*-h1     | 147              | 0.246       | 1,890x nodos  |
-| A*-h2     | **21**           | **0.036**   | **13,234x nodos** ✅ |
+| A*-h2     | **21**           | **0.036**   | **13,234x nodos**  |
 
 ---
 
@@ -178,9 +178,9 @@
 
 | Algoritmo | Nodos Expandidos | Tiempo (ms) | Resultado |
 |-----------|------------------|-------------|-----------|
-| BFS       | 500,001          | 1,386       | ❌ Timeout |
-| A*-h1     | 6,099            | 13.3        | ✅ Lento   |
-| A*-h2     | **560**          | **1.079**   | ✅ Óptimo  |
+| BFS       | 500,001          | 1,386       |  Timeout |
+| A*-h1     | 6,099            | 13.3        |  Lento   |
+| A*-h2     | **560**          | **1.079**   |  Óptimo  |
 
 **Factor de mejora:** A*-h2 usa **893x menos nodos** que BFS (antes del timeout).
 
@@ -194,63 +194,32 @@
 |-----------|------------------|-------------|
 | BFS       | 4                | 0.005       |
 | A*-h1     | 2                | 0.003       |
-| A*-h2     | **2**            | **0.002** ✅ |
+| A*-h2     | **2**            | **0.002**  |
 
 **Observación:** Incluso en casos triviales, A*-h2 es más eficiente.
 
 ---
 
-## 📉 Gráficos Sugeridos para el Informe
-
-### Gráfico 1: Nodos Expandidos vs Longitud de Solución
-
-**Eje X:** Longitud de solución (pasos)  
-**Eje Y:** Nodos expandidos (escala logarítmica)  
-**Series:** BFS, A*-h1, A*-h2
-
-**Observación esperada:** Crecimiento exponencial de BFS vs lineal/logarítmico de A*.
-
----
-
-### Gráfico 2: Tiempo de Ejecución por Algoritmo
-
-**Tipo:** Diagrama de cajas (box plot)  
-**Variables:** Tiempo de ejecución (ms) para cada algoritmo
-
-**Conclusión visual:** A*-h2 tiene mediana y varianza más bajas.
-
----
-
-### Gráfico 3: Tasa de Éxito
-
-**Tipo:** Gráfico de barras  
-**Datos:**
-- BFS: 95.2% (40/42)
-- A*-h1: 100% (42/42)
-- A*-h2: 100% (42/42)
-
----
-
-## 🎓 Conclusiones Principales
+##  Conclusiones Principales
 
 ### 1. Superioridad de A*-h2
 
-- ✅ **100% de éxito** en todos los puzzles
-- ✅ **Más eficiente** en todos los rangos de complejidad
-- ✅ **Más rápido** en promedio (1,446x vs BFS)
-- ✅ **Más predecible** (menor varianza)
+-  **100% de éxito** en todos los puzzles
+-  **Más eficiente** en todos los rangos de complejidad
+-  **Más rápido** en promedio (1,446x vs BFS)
+-  **Más predecible** (menor varianza)
 
 ### 2. Limitaciones de BFS
 
-- ❌ Falla en puzzles complejos (2/42 = 4.8%)
-- ❌ Ineficiente en nodos (hasta 13,234x más que A*-h2)
-- ❌ Tiempo prohibitivo para puzzles de 16+ pasos
+-  Falla en puzzles complejos (2/42 = 4.8%)
+-  Ineficiente en nodos (hasta 13,234x más que A*-h2)
+-  Tiempo prohibitivo para puzzles de 16+ pasos
 
 ### 3. A*-h1 como Punto Medio
 
-- ✅ Resuelve todos los puzzles
-- ⚠️ Menos eficiente que A*-h2 (6.9x más nodos)
-- ⚠️ Más lento que A*-h2 (145x)
+-  Resuelve todos los puzzles
+-  Menos eficiente que A*-h2 (6.9x más nodos)
+-  Más lento que A*-h2 (145x)
 
 ### 4. Importancia de la Heurística
 
@@ -261,29 +230,3 @@
 
 ---
 
-## 📌 Recomendaciones
-
-### Para Uso Práctico
-
-1. **Usar A*-h2** para resolver 15-Puzzles de cualquier dificultad
-2. **Evitar BFS** excepto para puzzles triviales (<5 pasos)
-3. **A*-h1** solo si h2 no está disponible
-
-### Para Investigación Futura
-
-1. Probar **IDA*** (Iterative Deepening A*) para reducir memoria
-2. Implementar **Pattern Databases** para heurísticas más fuertes
-3. Estudiar **paralelización de A*** para aprovechar múltiples cores
-
----
-
-## 📁 Archivos Generados
-
-- **comparacion_algoritmos.csv** - 127 filas (42 puzzles × 3 algoritmos)
-- **metricas_tarea9.csv** - Métricas de paralelización
-
----
-
-**Fecha de análisis:** Octubre 2025  
-**Total de ejecuciones:** 126 (42 puzzles × 3 algoritmos)  
-**Tiempo total de experimentación:** ~5 segundos
