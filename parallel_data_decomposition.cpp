@@ -1,6 +1,10 @@
-// Tarea 8: Descomposición de datos con OpenMP
-// Estrategia: Dividir el conjunto de puzzles en partes más pequeñas
-// Cada hilo procesa un subconjunto de puzzles en paralelo
+// Tarea 8: Descomposición de DATOS con OpenMP
+// Estrategia: Dividir el ESPACIO DE BÚSQUEDA en partes más pequeñas
+// En lugar de un solo BFS secuencial, cada hilo explora una porción
+// de los vecinos/nodos en paralelo (Parallel BFS)
+// 
+// CONCEPTO: En cada nivel del BFS, dividimos los nodos a expandir
+// entre múltiples hilos. Cada hilo procesa un subconjunto de nodos.
 
 #include <iostream>
 #include <string>
@@ -8,49 +12,59 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <vector>
-#include <fstream>
+#include <cmath>
 #include <omp.h>
 #include <chrono>
+#include <algorithm>
 
 using namespace std;
 
-const string TARGET = "ABCDEFGHIJKLMNO#";
+// Calcular tamaño del tablero
+int getBoardSize(int length) {
+    return (int)sqrt(length);
+}
 
-// Estructura para almacenar resultados
-struct PuzzleResult {
-    string puzzle;
-    int steps;
-    double time;
-    int threadId;
-    int nodesExpanded;
-};
+// Generar estado objetivo dinámicamente
+string generateTarget(int n) {
+    string target = "";
+    int total = n * n;
+    for (int i = 0; i < total - 1; i++) {
+        if (i < 26) {
+            target += (char)('A' + i);
+        } else {
+            target += (char)('0' + (i - 26));
+        }
+    }
+    target += '#';
+    return target;
+}
 
-// Encontrar posición del espacio en blanco
+// Encontrar posición del espacio
 int findBlank(const string& board) {
-    for (int i = 0; i < 16; i++) {
+    for (size_t i = 0; i < board.length(); i++) {
         if (board[i] == '#') return i;
     }
     return -1;
 }
 
 // Intercambiar posiciones
-string swapBoardTiles(const string& board, int pos1, int pos2) {
+string swapTiles(const string& board, int pos1, int pos2) {
     string newBoard = board;
     swap(newBoard[pos1], newBoard[pos2]);
     return newBoard;
 }
 
-// Generar vecinos
-vector<string> getNeighbors(const string& state) {
+// Generar vecinos (dinámico según tamaño)
+vector<string> getNeighbors(const string& state, int n) {
     vector<string> neighbors;
     int blank = findBlank(state);
-    int row = blank / 4;
-    int col = blank % 4;
+    int row = blank / n;
+    int col = blank % n;
 
-    if (row > 0) neighbors.push_back(swapBoardTiles(state, blank, blank - 4));
-    if (row < 3) neighbors.push_back(swapBoardTiles(state, blank, blank + 4));
-    if (col > 0) neighbors.push_back(swapBoardTiles(state, blank, blank - 1));
-    if (col < 3) neighbors.push_back(swapBoardTiles(state, blank, blank + 1));
+    if (row > 0) neighbors.push_back(swapTiles(state, blank, blank - n));     // UP
+    if (row < n-1) neighbors.push_back(swapTiles(state, blank, blank + n));   // DOWN
+    if (col > 0) neighbors.push_back(swapTiles(state, blank, blank - 1));     // LEFT
+    if (col < n-1) neighbors.push_back(swapTiles(state, blank, blank + 1));   // RIGHT
 
     return neighbors;
 }
@@ -58,9 +72,10 @@ vector<string> getNeighbors(const string& state) {
 // Contar inversiones
 int countInversions(const string& board) {
     int inversions = 0;
-    for (int i = 0; i < 16; i++) {
+    int len = board.length();
+    for (int i = 0; i < len; i++) {
         if (board[i] == '#') continue;
-        for (int j = i + 1; j < 16; j++) {
+        for (int j = i + 1; j < len; j++) {
             if (board[j] == '#') continue;
             if (board[i] > board[j]) inversions++;
         }
@@ -68,21 +83,108 @@ int countInversions(const string& board) {
     return inversions;
 }
 
-// Verificar si es resoluble (regla correcta para 4x4)
-bool isSolvable(const string& board) {
+// Verificar si es resoluble
+bool isSolvable(const string& board, int n) {
     int inversions = countInversions(board);
-    int blankRow = findBlank(board) / 4;  // 0-indexed: 0, 1, 2, 3
+    int blankRow = findBlank(board) / n;
     
-    // Para tableros 4x4 (ancho PAR):
-    // Resoluble si (inversiones + filaDelBlanco) es IMPAR
-    // Nota: contamos desde arriba (0,1,2,3), no desde abajo
-    return (inversions + blankRow) % 2 == 1;
+    if (n % 2 == 1) {
+        return inversions % 2 == 0;
+    } else {
+        return (inversions + blankRow) % 2 == 1;
+    }
 }
 
-// BFS que retorna pasos y nodos expandidos
-pair<int, int> solveBFS(const string& start) {
-    if (start == TARGET) return {0, 0};
-    if (!isSolvable(start)) return {-1, 0};
+// BFS PARALELO: Descomposición de DATOS del espacio de búsqueda
+// En cada nivel, dividimos los nodos a expandir entre hilos
+pair<int, int> parallelBFS(const string& start, const string& target, int n, int numThreads) {
+    if (start == target) return {0, 0};
+    if (!isSolvable(start, n)) return {-1, 0};
+
+    // Estructuras compartidas (protegidas con critical sections)
+    unordered_set<string> visited;
+    unordered_map<string, int> distance;
+    int totalNodesExpanded = 0;
+    
+    visited.insert(start);
+    distance[start] = 0;
+
+    // Two queues for level-by-level BFS
+    vector<string> currentLevel;
+    vector<string> nextLevel;
+    
+    currentLevel.push_back(start);
+    int currentDist = 0;
+
+    while (!currentLevel.empty()) {
+        nextLevel.clear();
+        
+        // DESCOMPOSICIÓN DE DATOS: Dividir los nodos del nivel actual entre hilos
+        int levelSize = currentLevel.size();
+        vector<vector<string>> threadNeighbors(numThreads);
+        
+        #pragma omp parallel num_threads(numThreads)
+        {
+            int tid = omp_get_thread_num();
+            vector<string> localNeighbors;
+            
+            // Cada hilo procesa una porción de los nodos del nivel actual
+            #pragma omp for schedule(dynamic)
+            for (int i = 0; i < levelSize; i++) {
+                string current = currentLevel[i];
+                
+                #pragma omp atomic
+                totalNodesExpanded++;
+                
+                // Generar vecinos
+                vector<string> neighbors = getNeighbors(current, n);
+                
+                for (const string& neighbor : neighbors) {
+                    if (neighbor == target) {
+                        // Encontrado! Retornar inmediatamente
+                        #pragma omp cancel for
+                        distance[neighbor] = currentDist + 1;
+                    }
+                    localNeighbors.push_back(neighbor);
+                }
+            }
+            
+            // Guardar vecinos locales del hilo
+            threadNeighbors[tid] = localNeighbors;
+        }
+        
+        // Verificar si se encontró la solución
+        if (distance.find(target) != distance.end()) {
+            return {distance[target], totalNodesExpanded};
+        }
+        
+        // Combinar vecinos de todos los hilos (evitar duplicados)
+        for (int t = 0; t < numThreads; t++) {
+            for (const string& neighbor : threadNeighbors[t]) {
+                if (visited.find(neighbor) == visited.end()) {
+                    visited.insert(neighbor);
+                    distance[neighbor] = currentDist + 1;
+                    nextLevel.push_back(neighbor);
+                }
+            }
+        }
+        
+        currentLevel = nextLevel;
+        currentDist++;
+        
+        // Límite de seguridad
+        if (totalNodesExpanded > 100000) {
+            return {-1, totalNodesExpanded};
+        }
+    }
+    
+    return {-1, totalNodesExpanded};
+}
+
+// BFS SECUENCIAL para comparación
+pair<int, int> sequentialBFS(const string& start, const string& target, int n) {
+    if (start == target) return {0, 0};
+    if (!isSolvable(start, n)) return {-1, 0};
 
     queue<string> q;
     unordered_set<string> visited;
@@ -93,14 +195,14 @@ pair<int, int> solveBFS(const string& start) {
     visited.insert(start);
     distance[start] = 0;
 
-    while (!q.empty()) {
+    while (!q.empty() && nodesExpanded < 100000) {
         string current = q.front();
         q.pop();
         nodesExpanded++;
 
-        vector<string> neighbors = getNeighbors(current);
+        vector<string> neighbors = getNeighbors(current, n);
         for (const string& neighbor : neighbors) {
-            if (neighbor == TARGET) {
+            if (neighbor == target) {
                 return {distance[current] + 1, nodesExpanded};
             }
             if (visited.find(neighbor) == visited.end()) {
@@ -114,124 +216,95 @@ pair<int, int> solveBFS(const string& start) {
 }
 
 int main(int argc, char* argv[]) {
-    // Determinar número de hilos
-    int numThreads = (argc > 1) ? atoi(argv[1]) : omp_get_max_threads();
-    omp_set_num_threads(numThreads);
-
-    // Leer todos los puzzles desde stdin
-    vector<string> puzzles;
-    string line;
-    while (getline(cin, line)) {
-        if (!line.empty() && line.length() == 16) {
-            puzzles.push_back(line);
-        }
-    }
-
-    if (puzzles.empty()) {
-        cerr << "No se encontraron puzzles en la entrada" << endl;
+    // Leer tamaño del tablero y puzzle desde stdin
+    int n;
+    string puzzle;
+    
+    if (!(cin >> n)) {
+        cerr << "Error: No se pudo leer el tamaño del tablero" << endl;
         return 1;
     }
-
-    cout << "=== Tarea 8: Descomposición de Datos con OpenMP ===" << endl;
-    cout << "Total de puzzles: " << puzzles.size() << endl;
-    cout << "Hilos utilizados: " << numThreads << endl;
-    cout << "Puzzles por hilo: ~" << (puzzles.size() + numThreads - 1) / numThreads << endl;
+    cin.ignore();
+    
+    if (!getline(cin, puzzle)) {
+        cerr << "Error: No se pudo leer el puzzle" << endl;
+        return 1;
+    }
+    
+    if ((int)puzzle.length() != n * n) {
+        cerr << "Error: El puzzle debe tener " << (n*n) << " caracteres para un tablero " << n << "x" << n << endl;
+        cerr << "Recibido: " << puzzle.length() << " caracteres" << endl;
+        return 1;
+    }
+    
+    string target = generateTarget(n);
+    
+    cout << "=== Tarea 8: Descomposición de DATOS (Parallel BFS) ===" << endl;
+    cout << "Estrategia: Dividir el ESPACIO DE BÚSQUEDA en cada nivel del BFS" << endl;
+    cout << "Tablero: " << n << "x" << n << " (" << (n*n) << " caracteres)" << endl;
+    cout << "Puzzle inicial: " << puzzle << endl;
+    cout << "Estado objetivo: " << target << endl;
     cout << endl;
-
-    // Vectores para almacenar resultados
-    vector<PuzzleResult> results(puzzles.size());
     
-    // Métricas globales
-    int totalSolved = 0;
-    int totalUnsolvable = 0;
-    long long totalNodes = 0;
-
-    auto startTime = chrono::high_resolution_clock::now();
-
-    // DESCOMPOSICIÓN DE DATOS: Dividir puzzles entre hilos
-    #pragma omp parallel
+    // Determinar número de hilos a probar
+    vector<int> threadCounts;
+    if (argc > 1) {
+        threadCounts.push_back(atoi(argv[1]));
+    } else {
+        threadCounts = {1, 2, 4};
+    }
+    
+    cout << "--- Comparación Secuencial vs Paralelo ---" << endl;
+    
+    double seqTime = 0;
+    int seqSteps = 0;
+    int seqNodes = 0;
+    
+    // Ejecutar versión secuencial
     {
-        int tid = omp_get_thread_num();
-        int localSolved = 0;
-        int localUnsolvable = 0;
-        long long localNodes = 0;
-
-        // Cada hilo procesa una porción del vector de puzzles
-        #pragma omp for schedule(dynamic)
-        for (int i = 0; i < (int)puzzles.size(); i++) {
-            auto puzzleStart = chrono::high_resolution_clock::now();
-            
-            // Resolver puzzle
-            pair<int, int> result = solveBFS(puzzles[i]);
-            int steps = result.first;
-            int nodes = result.second;
-            
-            auto puzzleEnd = chrono::high_resolution_clock::now();
-            double puzzleTime = chrono::duration<double>(puzzleEnd - puzzleStart).count();
-
-            // Guardar resultado
-            results[i] = {puzzles[i], steps, puzzleTime, tid, nodes};
-
-            // Actualizar contadores locales
-            if (steps >= 0) {
-                localSolved++;
-            } else {
-                localUnsolvable++;
-            }
-            localNodes += nodes;
-        }
-
-        // Reducción de contadores
-        #pragma omp critical
-        {
-            totalSolved += localSolved;
-            totalUnsolvable += localUnsolvable;
-            totalNodes += localNodes;
-        }
-    }
-
-    auto endTime = chrono::high_resolution_clock::now();
-    double totalTime = chrono::duration<double>(endTime - startTime).count();
-
-    // Imprimir resultados
-    cout << "--- Resultados ---" << endl;
-    for (size_t i = 0; i < results.size(); i++) {
-        const auto& r = results[i];
-        cout << "Puzzle " << (i+1) << ": ";
-        if (r.steps >= 0) {
-            cout << r.steps << " pasos";
-        } else {
-            cout << "NO RESOLUBLE";
-        }
-        cout << " | Nodos: " << r.nodesExpanded;
-        cout << " | Tiempo: " << r.time << "s";
-        cout << " | Hilo: " << r.threadId << endl;
-    }
-
-    // Estadísticas por hilo
-    cout << "\n--- Carga de Trabajo por Hilo ---" << endl;
-    vector<int> puzzlesPerThread(numThreads, 0);
-    vector<double> timePerThread(numThreads, 0.0);
-    
-    for (const auto& r : results) {
-        puzzlesPerThread[r.threadId]++;
-        timePerThread[r.threadId] += r.time;
+        auto start = chrono::high_resolution_clock::now();
+        auto result = sequentialBFS(puzzle, target, n);
+        auto end = chrono::high_resolution_clock::now();
+        
+        seqTime = chrono::duration<double>(end - start).count();
+        seqSteps = result.first;
+        seqNodes = result.second;
+        
+        cout << "\nSecuencial (1 hilo):" << endl;
+        cout << "  Resultado: " << (seqSteps >= 0 ? to_string(seqSteps) + " pasos" : "NO RESOLUBLE") << endl;
+        cout << "  Nodos expandidos: " << seqNodes << endl;
+        cout << "  Tiempo: " << seqTime << " segundos" << endl;
     }
     
-    for (int t = 0; t < numThreads; t++) {
-        if (puzzlesPerThread[t] > 0) {
-            cout << "Hilo " << t << ": " << puzzlesPerThread[t] << " puzzles";
-            cout << " | Tiempo total: " << timePerThread[t] << "s" << endl;
-        }
+    // Ejecutar versiones paralelas
+    for (int numThreads : threadCounts) {
+        if (numThreads == 1) continue; // Ya ejecutamos secuencial
+        
+        auto start = chrono::high_resolution_clock::now();
+        auto result = parallelBFS(puzzle, target, n, numThreads);
+        auto end = chrono::high_resolution_clock::now();
+        
+        double parTime = chrono::duration<double>(end - start).count();
+        int parSteps = result.first;
+        int parNodes = result.second;
+        
+        double speedup = seqTime / parTime;
+        double efficiency = speedup / numThreads * 100;
+        
+        cout << "\nParalelo (" << numThreads << " hilos):" << endl;
+        cout << "  Resultado: " << (parSteps >= 0 ? to_string(parSteps) + " pasos" : "NO RESOLUBLE") << endl;
+        cout << "  Nodos expandidos: " << parNodes << endl;
+        cout << "  Tiempo: " << parTime << " segundos" << endl;
+        cout << "  Speedup: " << speedup << "x" << endl;
+        cout << "  Eficiencia: " << efficiency << "%" << endl;
     }
-
-    // Métricas finales
-    cout << "\n--- Métricas Globales ---" << endl;
-    cout << "Puzzles resueltos: " << totalSolved << endl;
-    cout << "Puzzles no resolubles: " << totalUnsolvable << endl;
-    cout << "Total de nodos expandidos: " << totalNodes << endl;
-    cout << "Tiempo total de ejecución: " << totalTime << " segundos" << endl;
-    cout << "Throughput: " << puzzles.size() / totalTime << " puzzles/segundo" << endl;
+    
+    cout << "\n--- Análisis de Descomposición de Datos ---" << endl;
+    cout << "Estrategia: En cada nivel del BFS, los nodos se dividen entre hilos." << endl;
+    cout << "Cada hilo procesa un subconjunto de nodos del nivel actual en paralelo." << endl;
+    cout << "Los vecinos generados se combinan para formar el siguiente nivel." << endl;
+    cout << "\nVentaja: Aprovecha paralelismo en puzzles con gran factor de ramificación." << endl;
+    cout << "Limitación: Overhead de sincronización puede reducir speedup en puzzles pequeños." << endl;
 
     return 0;
 }
