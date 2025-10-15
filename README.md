@@ -19,7 +19,6 @@
 - [📦 Compilación](#-compilación)
 - [🚀 Ejecución](#-ejecución)
 - [📊 Resultados Principales](#-resultados-principales)
-- [📖 Documentación Adicional](#-documentación-adicional)
 - [🎓 Lecciones Aprendidas](#-lecciones-aprendidas)
 
 ---
