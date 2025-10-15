@@ -11,32 +11,20 @@
 
 ---
 
-## 📚 Tabla de Contenidos
-
-- [🎯 Resumen Ejecutivo](#-resumen-ejecutivo)
-- [🚀 Inicio Rápido](#-inicio-rápido)
-- [🗂️ Estructura del Proyecto](#️-estructura-del-proyecto)
-- [📦 Compilación](#-compilación)
-- [🚀 Ejecución](#-ejecución)
-- [📊 Resultados Principales](#-resultados-principales)
-- [🎓 Lecciones Aprendidas](#-lecciones-aprendidas)
-
----
-
-## 🎯 Resumen Ejecutivo
+## Resumen Ejecutivo
 
 Implementación completa de 10 tareas sobre algoritmos de búsqueda para el problema del 15-puzzle, incluyendo paralelización con OpenMP. 
 
 **Resultados principales:**
-- ✅ **A*-h2 es 5× más rápido que BFS** (0.003ms vs 0.015ms)
-- ✅ **Descomposición de datos** escala linealmente con múltiples puzzles
-- ⚠️ **Descomposición de dominio** tiene overhead significativo (speedup < 1.0)
-- 📊 **31 archivos** en el repositorio (14 .cpp, 5 .md, 1 .tex, 3 .sh, 6 .txt)
+- **A*-h2 es 5× más rápido que BFS** (0.003ms vs 0.015ms)
+- **Descomposición de datos** escala linealmente con múltiples puzzles
+- **Descomposición de dominio** tiene overhead significativo (speedup < 1.0)
+- **31 archivos** en el repositorio (14 .cpp, 5 .md, 1 .tex, 3 .sh, 6 .txt)
 
 
 ---
 
-## 📋 Descripción
+## Descripción
 
 Este proyecto implementa y compara algoritmos de búsqueda para resolver el 15-puzzle, incluyendo estrategias de paralelización con OpenMP.
 
@@ -51,7 +39,7 @@ Este proyecto implementa y compara algoritmos de búsqueda para resolver el 15-p
 
 ---
 
-## 🗂️ Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 .
@@ -311,7 +299,7 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ---
 
-## � Resultados Principales
+## Resultados Principales
 
 ### Comparación de Algoritmos Secuenciales
 
@@ -346,7 +334,7 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ---
 
-## 📚 Archivos de Datos
+## Archivos de Datos
 
 - **puzzles_final.txt:** 3 puzzles verificados como solubles (1, 3, 30 pasos)
 - **puzzles_demo.txt:** Puzzles para demostración
@@ -355,7 +343,7 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 ---
 
 
-## 🎓 Lecciones Aprendidas
+## Lecciones Aprendidas
 
 1. **A* con Manhattan distance es superior** para el 15-puzzle
 2. **Descomposición de datos escala bien** con múltiples puzzles independientes
@@ -365,7 +353,7 @@ echo 'ABCDEFGHIJKLMNOPQRSTUVWX#' | ./nxn_solver
 
 ---
 
-## 👤 Autor
+## Autor
 
 **Benjamin Ortiz**  
 Computación Paralela - 2025  
@@ -375,11 +363,7 @@ Repositorio: https://github.com/benjamin94773/Parcial2_Paralela2025_2.git
 
 ---
 
-## 🔗 Enlaces Importantes
+## Enlaces Importantes
 
 - **Repositorio GitHub:** https://github.com/benjamin94773/Parcial2_Paralela2025_2.git
 
----
-
-**Última actualización:** 14 de Octubre de 2025  
-**Estado:** ✅ Proyecto completo y listo para entrega
