@@ -1,4 +1,4 @@
-# 🚀 Guía Rápida de Compilación y Ejecución
+# Guía Rápida de Compilación y Ejecución
 
 ## Compilación Automática
 
