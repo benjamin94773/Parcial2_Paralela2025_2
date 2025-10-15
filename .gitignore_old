@@ -1,0 +1,48 @@
+# Ejecutables compilados
+board_printer
+board_moves
+board_available
+bsp_solver
+h1_solver
+h2_solver
+nxn_solver
+parallel_data
+tarea9_dominio
+tarea9_metricas
+tarea10_comparacion
+
+# Archivos de salida
+*.o
+*.out
+out.txt
+results.txt
+
+# Archivos temporales
+*.tmp
+*.swp
+*~
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Directorios de IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos de LaTeX temporales
+*.aux
+*.log
+*.toc
+*.pdf
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+
+# Excepciones (mantener estos PDFs)
+!Parcial_Paralela2025_2.pdf
+!INFORME_FINAL.pdf
+
+# Carpeta de macOS
+__MACOSX/
